@@ -1,0 +1,18 @@
+# X32 Remote Control Application Requirements
+# Python 3.7+ required
+
+# Core dependencies (included with Python)
+# tkinter - GUI framework
+# socket - Network communication
+# threading - Multi-threading support
+# struct - Binary data handling
+# queue - Thread-safe queues
+
+# Required dependencies for scene monitoring
+watchdog>=2.1.0      # File system monitoring
+
+# Optional dependencies for enhanced functionality
+# python-osc>=1.7.4  # Better OSC implementation
+# numpy>=1.21.0      # For advanced audio processing
+# matplotlib>=3.5.0  # For spectrum analysis and EQ visualization
+# pyserial>=3.5      # For MIDI control surface support 
