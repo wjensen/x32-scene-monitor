@@ -61,6 +61,20 @@ Edit scene file → Monitor detects changes → Console updates automatically
 - **📊 Detailed Logging** - Real-time status updates and change history
 - **🔧 Cross-Platform** - Works on Windows, macOS, and Linux
 
+## 🎛️ **Applications**
+
+### **X32 Scene File Monitor** (`x32_scene_monitor.py`)
+The main application that monitors local `.scn` files and automatically applies changes to the X32 console in real-time.
+
+### **X32 OSC Protocol** (`x32_osc_protocol.py`)
+Complete OSC protocol implementation based on official X32-OSC.pdf specifications. Provides comprehensive control over all X32 parameters with proper OSC message formatting and bidirectional communication.
+
+### **X32 Advanced Remote Control** (`x32_advanced_remote.py`)
+Enhanced remote control application with tabbed interface, scene management, and effects control.
+
+### **X32 Remote Control** (`x32_remote_control.py`)
+Basic remote control application for fader and mute control.
+
 ## 📋 **Supported X32 Parameters**
 
 | Parameter Type | OSC Address | Description |
