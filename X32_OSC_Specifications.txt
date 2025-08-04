@@ -1,0 +1,472 @@
+
+--- PAGE 1 ---
+ 
+ 
+ 
+  
+UNOFFICIAL  X32/M32 
+OSC REMOTE  PROTOCOL 
+ 
+  
+ 
+ 
+OSC protocol implementation for the 
+X32/M32 Digital Mixing Console families 
+Applies to console F W ver 4.0 and later 
+ 
+ 
+ 
+ 
+ 
+   
+ 
+  
+Initiated from version 1.01 (Oct‐17‐2012) 
+version 4.02 – 01 (Jan 12, 2020) 
+ 
+  
+
+
+--- PAGE 2 ---
+ 
+ 
+ 
+   Acknowledgements 
+ 
+ This document regroups data contained in version 1.01 of the OS C protocol for the X32 family of products 
+released by Behringer in Oct.  2012, and a large number of addit ional OSC messages for communicating 
+with the X32, their syntax and us e, along with practical exampl es and explanations as to how and in 
+which context they should be use d. This document should also ap ply to M32, a product from Midas, very 
+similar to X32.  Behringer is not associated to the redaction of this document a nd no support will be provided by the 
+company. 
+ 
+I have tried to make the information contained here as accurate  as possible. A few areas are still prone to 
+inaccuracies or uncertainties as to how to best use them. Pleas e do not hesitate to provide feedback on 
+the X32 user forum on errors or  inaccuracies. They will be corr ected in futures updates. 
+ 
+I want to thank X32 forums well known  Paul Vannatto  for his invaluable support, generous time and 
+advice in reviewing early versions of this document.  As you read through this document,  you may like a “hands on” ex perience with testing OSC commands, it 
+is recommended you use a utility to send/read commands to/from  the X32. Such utilities ensure the 
+commands will be properly forma tted and offer better support fo r reading OSC data b ack from X32/M32.  
+ 
+X32_Command1 is a terminal based utility running on Windows, Linux, OSX and  Raspberry 
+platforms, supporting batch and  interactive modes, timed comman ds, multi‐tag parameters, and 
+also scenes, snippets, and  presets. Download it from 
+https://sites.google.com/site/patrickmaillot/x32 .  
+ 
+X32 Live Toolbox2  is a GUI based utility running i n Windows, Linux and OSX. It a lso offers 
+additional features such as  EQ copy. Download it from 
+http://sourceforge.net/projects/x32livetoolbox/  
+ 
+With my purchase of an X32 digital mixer and as I started to fi nd out more about OSC and ways to 
+achieve more with the X32 via pr ograms, I have spent quite some  time designing and coding several 
+utilities and applications for t he M/X32 family of systems. Lat e 2015, I decided to open‐source the code 
+for the programs I wrote . These can be found at  https://github.com/pmaillot/X32‐Behringer . I’ll continue 
+to add programs as I finally “cl ean” them before publishing. 
+ 
+ 
+Note: Starting with X32 FW relea se 4.0, this manual will follow  the X32 FW release numbering rather than 
+its own numbering scheme; For example,  “version 4.02 – 01 (Jan 12, 2020)”  refers to update 01 of the 
+document for FW 4.02, issued on Jan 12th, 2020. 
+ 
+   
+Patrick‐Gilles Maillot
+ 
+1 X32_Command: © 2014‐2018 Patrick‐Gilles Maillot 
+2 X32 Live Toolbox: © 2014‐2018 Paul Vannatto 
+
+--- PAGE 3 ---
+ 
+ 
+ 
+Unofficial X32/M32 OSC Remote Protocol  2    Patrick‐Gilles Maillo t Contents 
+DESCRIPTION ................................................... ............................................................... .................................... 6  
+Client initiated messages (client   X32 console) ................................................. .......................................... 8  
+Multiple client management .................................... ............................................................... ....................... 9  
+Server replies or server initiated messages (X32 console   client) ...................................................... ...... 10 
+X32/M32 OSC Protoc ol Parameters ............................... ............................................................... ............... 10  
+Type rules (Get/Set parame ter) and data formatting ............ ............................................................... ....... 11 
+Responses from  X32/M32: ....................................... ............................................................... ................. 12  
+Special considerations  for the enum type. ..................... ............................................................... ........... 12  
+Float type. ................................................... ............................................................... ............................... 13  
+MIDI Conne ctions .............................................. ............................................................... ............................ 15  
+Meter requests ................................................ ............................................................... .................................. 16  
+List of all Me ter IDs: ........................................ ............................................................... ............................... 17  
+/meters/0  .............................................................. ............................................................... ............... 17  
+/meters/1  .............................................................. ............................................................... ............... 17  
+/meters/2  .............................................................. ............................................................... ............... 17  
+/meters/3  .............................................................. ............................................................... ............... 17  
+/meters/4  .............................................................. ............................................................... ............... 17  
+/meters/5 <chn _meter_id> <grp _meter_id> .............................................................. ........ 18 
+/meters/6 <channel _id> .............................................................. ................................................ 18  
+/meters/7  .............................................................. ............................................................... ............... 18  
+/meters/8  .............................................................. ............................................................... ............... 18  
+/meters/9  .............................................................. ............................................................... ............... 18  
+/meters/10  .............................................................. ............................................................... ............. 18  
+/meters/11  .............................................................. ............................................................... ............. 18  
+/meters/12  .............................................................. ............................................................... ............. 18  
+/meters/13  .............................................................. ............................................................... ............. 18  
+/meters/14  .............................................................. ............................................................... ............. 19  
+/meters/15  .............................................................. ............................................................... ............. 19  
+/meters/16  .............................................................. ............................................................... ............. 19  
+X32/M32    Client communications ....................................... ............................................................... ........... 20  
+Configuration (/ config) data .................................. ............................................................... .................... 20  
+Channel (/ch) data ............................................ ............................................................... ......................... 25  
+Aux In (/auxin) data .......................................... ............................................................... ......................... 28  
+FX Return (/fxrtn) data ....................................... ............................................................... ....................... 30  
+Bus (/bus) data ............................................... ............................................................... ........................... 31  
+Matrix (/mtx) data ............................................ ............................................................... ......................... 33  
+Main Stereo (/ma in/st) data.................................... ............................................................... .................. 34  
+Main Mono (/ma in/m) data ...................................... ............................................................... ................ 36  
+DCA groups (/dca) data ........................................ ............................................................... ..................... 38  
+Effects (/fx) data ............................................ ............................................................... ............................ 39  
+Output sets (/output) data .................................... ............................................................... .................... 40  
+Headamp (/head amp) data ....................................... ............................................................... ................ 42  
+Inserts (/‐insert) data ....................................... ............................................................... ......................... 42  
+
+--- PAGE 4 ---
+ 
+ 
+ 
+Unofficial X32/M32 OSC Remote Protocol  3    Patrick‐Gilles Maillo t Show, Cue, Scene, Snippet, and Preset Management .............. ............................................................... .... 43 
+Scene Safes: How d o they work? ................................ ............................................................... .............. 43  
+Presets (/ ‐libs) .............................................. ............................................................... ............................. 44  
+Manipulation of datasets (/add, /copy, /save, /load, /delete, / rename) ................................................ 44  
+Notes on the use  of /showdump ................................. ............................................................... .............. 53  
+X32/M32 console st atus commands ............................... ............................................................... .............. 55  
+Preferences (/‐p refs) data .................................... ............................................................... ..................... 55  
+USB (/‐usb) data .............................................. ............................................................... .......................... 59  
+Status (/‐st at) data .......................................... ............................................................... .......................... 60  
+Action (/‐action) da ta & Undo (/‐undo) ........................ ............................................................... ............ 67  
+X‐Live! sdcard recording (/‐urec) ............................. ............................................................... .................. 70  
+X‐Live! recording data ........................................ ............................................................... ........................... 72  
+Recording da ta format ......................................... ............................................................... ......................... 72  
+Recording Session ............................................. ............................................................... ......................... 72  
+Preproduced Session  (for playback) ............................ ............................................................... .............. 73  
+Drop Outs ..................................................... ............................................................... ............................. 73  
+Fragmentation ................................................. ............................................................... .......................... 73  
+Subscribing to X 32/M32 Updates ................................ ............................................................... ...................... 74  
+Subscribing to d ata updates ................................... ............................................................... ................... 77  
+X32node (/node,  / ) commands .................................. ............................................................... ...................... 78  
+EFFECTS ....................................................... ............................................................... ...................................... 86  
+Effects Parameters ............................................ ............................................................... ............................ 86  
+Hall Reverb ................................................... ............................................................... ................................. 86  
+Plate Reverb .................................................. ............................................................... ................................ 87  
+Ambiance Reverb ............................................... ............................................................... ........................... 87  
+Rich Plate Reverb ............................................. ............................................................... .............................. 88  
+Room Reverb ................................................... ............................................................... .............................. 88  
+Chamber Reverb ................................................ ............................................................... ............................ 89  
+4‐Tap Delay ................................................... ............................................................... ................................. 89  
+Vintage Reverb ................................................ ............................................................... .............................. 90  
+Gated Reverb .................................................. ............................................................... ............................... 91  
+Stereo Delay .................................................. ............................................................... ................................ 92  
+3‐Tap Delay ................................................... ............................................................... ................................. 93  
+Stereo Chorus ................................................. ............................................................... ............................... 94  
+Stereo Flanger ................................................ ............................................................... ............................... 94  
+Stereo Phaser ................................................. ............................................................... ............................... 95  
+Dimensiona l Chorus............................................. ............................................................... .......................... 95  
+Mood Filter ................................................... ............................................................... ................................. 96  
+Rotary Speaker ................................................ ............................................................... .............................. 96  
+Tremolo / Panner .............................................. ............................................................... ............................ 97  
+Delay / Chamber ............................................... ............................................................... ............................. 97  
+Suboctaver .................................................... ............................................................... ................................. 98  
+Delay / Chorus ................................................ ............................................................... ............................... 98  
+Delay /Flanger ................................................ ............................................................... ............................... 99  
+Chorus / Chamber .............................................. ............................................................... ........................... 99  
+Flanger / Chamber ............................................. ............................................................... .......................... 100  
+Modulation  Delay .............................................. ............................................................... .......................... 100  
+
+--- PAGE 5 ---
+ 
+ 
+ 
+Unofficial X32/M32 OSC Remote Protocol  4    Patrick‐Gilles Maillo t Dual Graphic Equalizer / True  Dual Graphic Equalizer .......... ............................................................... ...... 101 
+Graphic Equalizer / Tru e Graphic Equalizer .................... ............................................................... ............. 101  
+Stereo / Dual De‐Esser ........................................ ............................................................... ......................... 102  
+Precision Limiter ............................................. ............................................................... ............................. 102  
+Stereo  / Dual  Program EQ ..................................... ............................................................... ..................... 103  
+Stereo / Dual Midrange EQ ..................................... ............................................................... .................... 104  
+Stereo / Dual  Combinator ...................................... ............................................................... ..................... 105  
+Stereo / Dual Fa ir Compressor ................................. ............................................................... ................... 108  
+Stereo / Dual Leis ure Compressor .............................. ............................................................... ................. 109  
+Edison EX1 .................................................... ............................................................... ............................... 109  
+Stereo / Dual Ulti mo Compressor ............................... ............................................................... ................ 110  
+Sound Maxer ................................................... ............................................................... ............................ 110  
+Stereo / Dual Enhancer ........................................ ............................................................... ....................... 111  
+Stereo Imager ................................................. ............................................................... ............................. 112  
+Stereo / Dual Guitar Amp ...................................... ............................................................... ...................... 113  
+Stereo / Dual Pi tch Shifter ................................... ............................................................... ........................ 115  
+Wave Designer.................................................. ............................................................... ........................... 115  
+User ASSIGN Section ........................................... ............................................................... ............................. 116  
+Rotary Encoders (X 32/M32 Standard) ............................ ............................................................... ............ 117  
+Buttons (X32/M 32 Standard) .................................... ............................................................... .................. 119  
+Appendix – X32 Standard: Surface Controls ..................... ............................................................... ............... 124  
+Config/Preamp/Ga te/Dynamics ................................... ............................................................... ............... 124  
+Equalizer ..................................................... ............................................................... ................................. 124  
+USB/Bus Sends/ Main Bus ........................................ ............................................................... .................... 125  
+Monitor/Talkback .............................................. ............................................................... .......................... 125  
+Scenes/Assign/Mu te Groups ..................................... ............................................................... .................. 126  
+Fader Strips .................................................. ............................................................... ................................ 127  
+Appendix – Converting X32 fader data to decibels and vice‐versa  .............................................................. .. 128 
+Appendix – Scene data elements ................................ ............................................................... .................... 129  
+Appendix – Snippet data elements .............................. ............................................................... ................... 131  
+Appendix – Channel, Effects, Routing, and AES/DP48 preset files  data elements ........................................ 132  
+Appendix – X32/M32 Custom Boot and Lock Screens ............... ............................................................... ..... 133 
+Appendix – X32/M32 Icons ...................................... ............................................................... ....................... 134  
+Appendix – X32 MIDI Implementation ............................ ............................................................... ................ 135  
+MIDI RX > SCENES .............................................. ............................................................... .......................... 135  
+General Notes and Requirements ................................ ............................................................... ........... 135  
+MIDI TX > CUES ................................................ ............................................................... ........................ 135  
+MIDI RX > ASSIGN .............................................. ............................................................... ...................... 137  
+MIDI TX > ASSIGN .............................................. ............................................................... ...................... 137  
+MIDI Push: .................................................... ............................................................... ........................... 137  
+MIDI Toggle: .................................................. ............................................................... .......................... 137  
+Please Note: .................................................. ............................................................... ........................... 138  
+MIDI RX/TX > DAW REMOTE CONTROL SURFACE ....................... ...............................................................  138 
+Appendix – OSC over MI DI Sysex commands ....................... ............................................................... ........... 139  
+
+--- PAGE 6 ---
+ 
+ 
+ 
+Unofficial X32/M32 OSC Remote Protocol  5    Patrick‐Gilles Maillo t Appendix – Fader Floats Table  – 1024 float values – [0.0, 1.0]  ............................................................... ....... 140 
+Appendix – Frequency Table – 201 log scale frequency values – [ 20 Hz, 20 kHz] ......................................... 146  
+Appendix – Frequency Table – 121 log scale frequency values – [ 20 Hz, 20 kHz] ......................................... 147  
+Appendix – Frequency Table – 101 log scale frequency values – [ 20 Hz, 400  Hz] ......................................... 148  
+Appendix – Q Factor Table – 72 lo g scale Q values – [10.0, 0.3,  72] .......................................................... .... 149 
+Appendix – Hold Table – 101 log  scale Hold value s – [0.02, 2000 .00, 101] ................................................... 1 50 
+Appendix – Release Table – 101 lo g scale Release values – [5.00 , 4000.00,  101] ......................................... 151  
+Appendix – Level Table – 161 pseudo‐log scale Level values – [‐ oo, +10, 161] ............................................. 152  
+Appendix – RTA Decay Table – 19  log scale Decay values – [0.25,  16, 19] .................................................... 1 53 
+Appendix – Channel Dyn mgain – 49 lin scale values – [0, 24, 0. 5] ............................................................ .... 154 
+Appendix – Automix weight – 49 lin scale values – [‐12, 12, 0.5 ] ............................................................. ..... 155 
+Appendix – Preamp trim – 145 lin  scale values – [‐18, 18, 0.25]  .............................................................. ..... 156 
+Appendix – Headamp gain – 145 lin  scale values – [‐12, 60, 0.5]  .............................................................. .... 157 
+Appendix – Channel Gate range – 58 lin scale values – [3, 60, 1 .0] ........................................................... .... 158 
+Appendix – Channel EQ gain –121  lin scale values – [‐15, 15, 0. 250] .......................................................... .. 159 
+Appendix – Solo Dim Att – 41 lin  scale values – [‐40, 0, 1.0] . ............................................................... ......... 160  
+Appendix – Effects enums, nam es and preset names table ........ ............................................................... ... 161 
+Appendix – Programming Examples ............................... ............................................................... ................. 162  
+HelloX32 (Unix) ............................................... ............................................................... ............................. 162  
+X32 Connect, Send and Receive (Unix/Windows) .................. ............................................................... ..... 163 
+X32Saver (Unix) ............................................... ............................................................... ............................ 166  
+X32Saver (W indows) ............................................ ............................................................... ....................... 169  
+X32 data echo in Go ........................................... ............................................................... ......................... 172  
+Appendix – Mis ceallaneous ..................................... ............................................................... ........................ 174  
+Floating point data representation ............................ ............................................................... ................. 174  
+ 
+
+--- PAGE 7 ---
+ 
+ 
+ 
+Unofficial X32/M32 OSC Remote Protocol  6    Patrick‐Gilles Maillo t DESCRIPTION 
+ 
+X32 & M32 represent a fam ily of digital mixers (Core3, Rack, Producer, Compact and  Standard) which are using a 
+communication protocol that is compatible to standard OSC with  some MUSIC Group specif ic extensions (e.g. 
+parameter enquiry, subscriptions) . OSC packets are received on  UDP port 10023 and replies are sent back to the 
+requester's IP/port4. 
+ MIDI is also supported by the cons ole and this is addressed lat er in this document, although the main focus 
+hereafter is on OSC, using faster ethernet connections. 
+ In the following, the X32/M32 (r ack, console) is also called se rver, and a connected device or application is 
+typically called client. Connecti ons to the server take place o ver Ethernet network, UD P port 10023. The server 
+replies on the UDP port used by the client when establishing co mmunication. 
+ 
+Due to the nature of UDP communi cations, buffer overflows situa tions should be taken into consideration. A 
+typical example of critical situ ation is sending large numbers  of 
+/node requests to an X32 connected to a 
+2.4GHz/54Mb/s WIFI router.  Th e 100Mb/s link between the X32 an d the router will enable  the X32 to send a lot 
+more data than what can be propagated via WIFI by the router to  connected clients, with p ossibly missing data at 
+the client level due to UDP packets being silently lost by the  router. Indeed, no errors w ill be reported in UDP for 
+loss of data.   
+There are different modes of ope ration for the X32/M32 to commu nicate OSC protocol: 
+ Immediate : a client such as a network connected tablet or PC application  sends a request with or without 
+parameters and the server immedia tely acts or replies with the  respective data. 
+Note:  a single request from the client can result in several repli es from the server (this is typically the case 
+with 
+/showdump ) 
+ 
+ Deferred: a client such as a network connected tablet or PC application  sends a specific request without 
+parameters ( /xremote ). When changes take place either from the server UI or from a  connected client, 
+several notification messages are returned for a period of time , until a timeout is reached.  
+Note: a single action at the server can result in several messages  from the server. 
+ 
+ X32 internal variables are drivi ng the behavior of the console.  These can be read (Get) or written (Set) with OSC 
+commands mapping variables with a ddressable parameters. Paramet ers are internally organ ized in logical groups, 
+I will refer to as “ X32nodes ”. X32nodes are widely used in sc enes, snippets, and presets. T hey can be read using 
+the 
+/node command presented later in this document5. X32nodes can be written or sent to X32 using the  / 
+command, also presented later in  this document. Parameters of a n X32node can also be updated as a group 
+(complete or not) by using the combined (multiple Type Tags) fo rm of OSC Set commands. 
+ 
+ 
+  
+ 
+3 The X32 Core has been discontinued during the 4th quarter of 2017 
+4 See Appendix for an example of communication program 
+5 See chapter “X32nodes (/node & /) commands” 
+
+--- PAGE 8 ---
+ 
+ 
+ 
+Unofficial X32/M32 OSC Remote Protocol  7    Patrick‐Gilles Maillo t The list of <OSC Address Pattern> parameters commands, enabling  an interactive control  of all features of the 
+X32/M32 mixer family is listed below: 
+ 
+<OSC Address Pattern> :=   
+/ | /-action | /add | /auxin | /batchsubscribe | /bus | /ch | /config |  
+/copy | /dca | /delete | /formatsubscribe | /fx | /fxrtn | /headamp |  /info | /-insert | /-libs | /load | /main/m | /main/st | /meters | /mtx |  
+/node | /outputs | /-prefs | /rename | /renew | /save | /-show | /showdump |  
+/-stat | /status | /subscribe | -undo | /unsubscribe | /-urec | /-usb |  /xinfo | /xremote 
+ 
+ 
+ 
+In this document, many commands t o X32/M32 and replies from the  console are shown as text in the following 
+forms:  
+<command> <format> <parameters> 
+ Or  <command>~~~<format>~~~<parameter> <parameter>… 
+ 
+The first form, for example: 
+/ch/01/mix/fader ,f [0.7] represents a command you would type in, using 
+the X32_Command  utility mentioned ear lier in this document. 
+ 
+The second form, for example:  /ch/01/mix/fader~~~~,f~~[0.7] represents a command sent by the 
+X32_Command utility mentioned earl ier in this document. In that  case, the number of  ~ characters accurately 
+represent the number of Null byte s (or \0) sent along with the  command to respect the  OSC protocol format. 
+ 
+This is further detailed in the coming pages.     
+
+--- PAGE 9 ---
+ 
+ 
+ 
+Unofficial X32/M32 OSC Remote Protocol  8    Patrick‐Gilles Maillo t Client initiated messages (client   X32 console) 
+ 
+Operation  OSC address  Parameters  Comments 
+Info request  /info 
+ 
+/xinfo  
+None Server responds with  /info message 
+ 
+Server responds with  /xinfo message 
+Status 
+request /status  None  Server responds with  /status  message 
+Set X32 
+parameter <OSC Address 
+Pattern> <string | int | float | blob 
+value> Sets the value of a cons ole parameter, e.g.: 
+/ch/01/mix/fader~~~~,f~~<float> 
+ If it exists and value is in  range, the new value takes 
+place in the X32. 
+Get X32 
+parameter <OSC Address 
+Pattern> None  Requests the value of a  console parameter, e.g. 
+/ch/01/mix/fader~~~~ 
+If it exists , the current value is echoed back by server, 
+e.g.: 
+/ch/01/mix/fader~~~~,f~~<float> 
+Set X32 
+node data /  <string>  Updates the values of a set of console parameters. A 
+full set of X32node values ca n be sent to the server as 
+plain text and matching /node formats, e.g.:  
+/~~~,s~~-prefs/iQ/01 none Linear 0~~  
+Get X32 
+node data /node  <string>  Requests the values of a set of console parameters, 
+e.g.: 
+/node~~~,s~~-prefs/iQ/01~~~~ 
+The current values for the full set corresponding to the 
+request are returned by the server in plain text (string 
+of characters, ending with a linefeed), e.g.: 
+node~~~,s ~~/-prefs/iQ/01 none Linear 
+0\n~~~~  
+Get X32 
+meters /meters  <string> 
+<optional int: chn_meter_id> 
+<optional int: grp_meter_id> 
+<optional int: priority> 
+ Results in regular updates meter values as a single 
+binary blob. Timeout is 10 seconds, e.g.  
+/meters ,s meters/1   will return bursts of 96 float 
+meter values (32 input, 32 g ate and 32 dynamic gain 
+reductions)  for 10s. 
+see “Meter requests” for additional details  
+Subscribe to 
+data from 
+X32 /subscribe  <string> < opt ional int>  Client describes to X32 server what information it is 
+interested in receiving, and at which frequency the 
+update is reported, until a timeout of 10 seconds is 
+reached.eg:  
+/subscribe ,s /-stat/solosw/01 
+or 
+/subscribe ,si /-stat/solosw/01 1 
+Will report about 200 updat es of the state of solo 
+switch for channel 01 over the span of 10s. 
+/subscribe ,si /-stat/solosw/01 50 
+Will report about 4 updates of  the state of solo switch 
+for channel 01 
+Subscribe to 
+data 
+formats /formatsubscribe <string>…<string><int>…<int>  Client describes to X32 server what information it is 
+interested in receiving, e.g.: 
+/formatsubscribe ,ssiii /mfm_c /dca/*/on 
+1 8 8 
+
+--- PAGE 10 ---
+ 
+ 
+ 
+Unofficial X32/M32 OSC Remote Protocol  9    Patrick‐Gilles Maillo t from server  Reports a blob of 36 bytes for about 10s.  
+The last <int> specifies the frequency factor of the 
+report. 
+Subscribe to 
+batch data 
+from server /batchsubscribe  <string>…<string><int>…<int>  Client request from X32 server data to receive, e.g.: 
+/batchsubscribe ,ssiii /x_meters_0 
+/meters/0 0 69 1 
+Reports a blob of 70 floats for about 10s.  
+ 
+/batchsubscribe ,ssiii /x _meters_8 
+/meters/8 0 5 1 
+Reports a blob of 6 floats for about 10s.  
+ 
+/batchsubscribe ,ssiii /mfm _a /mix/on 0 
+63 8 
+Reports a blob of 276 by tes for about 10s.  
+ 
+The last <int> specifies the frequency factor of the 
+report. 
+Renew data 
+request /renew  <string>  Requests renewing of data described in <string>, e.g. 
+/renew~~,s~~meters/5~~~~ 
+/renew~~,s~~hidden/states~~~ 
+Register for 
+updates  /xremote  None  Triggers X32 to send all parameter changes to 
+maximum four active client s. Timeout is 10 seconds, 
+e.g. the /xremote command has to be renewed 
+before this delay in order t o avoid losing information 
+from The X32 console. 
+ 
+ 
+ Multiple client management 
+ 
+A single X32 can manage updates  from and to several simultaneou s UDP clients.  
+ 
+In order to keep being synchronized with changes happening at t he X32 level, either from a change at the desk 
+itself or requested by another re mote client, each client must  register for receiving updates from the X32. This is 
+possible with the  /xremote  command.  
+ 
+After receiving an  /xremote command, the X32 will update the client with changes taking pla ce in the X32, such 
+as fader movements, bank change requests, and screen updates. S ome changes or user actions will not be 
+reported as they do not directly affect the connected clients o r result in changes that are strictly local to the 
+X32/M32, such as pressing on one o f the view buttons of the Sta ndard X32/M32.  
+ 
+Registering for desk updates with a  /xremote  command maintains updates for 10 seconds, after which a new 
+/xremote  command should be issued by the client to keep the updating pr ocess alive. 
+Please refer to the examples giv en at the end of this document  on how to use  /xremote  in client applications (for 
+example X32Saver.c (Linux or Wi ndows), X32 data echo in Go) 
+ 
+Note: other commands such as  /subscribe , /formatsubscribe , /batchsubscribe  also enable receiving 
+regular updates form the server;  details are available in the p aragraph “Subscribing to X32/M32 Updates”. 
+  
+ 
+ 
